@@ -1,23 +1,41 @@
 #include<stdint.h>
-#include "at.h"
-
+#include<stdio.h>
+#define CR 0x0D
+#define LF 0x0A
+#define PLUS 0x2B
+#define E 0x45
+#define O 0x4F
+#define R 0x52
+#define K 0x4B
 uint32_t state = 0; // we will store this var in heap because we need everytime to know the last state
+int32_t result = 2;  //sustain the state to be in process
+int checkIfError=0;
+int isOKorERROR=0; // checks if the next CRLF will end the message
+int is_message= 0;  //will check if there exists some messages like +something ,because we want to know how much CR LF we expect
+
 int32_t validator(uint8_t character){
-    int32_t result = -1;  //sustain the state to be in process
-    int is_message= 0;  //will check if there exists some messages like +something ,because we want to know how much CR LF we expect
     //RULES:  
     /*
-        Result will contain everytime a value which will be returned in our main call
+        var result will contain everytime a value which will be returned in our main call
         0- correct message 
         1- incorrect message 
         2- it started but it's not done
     */
-    printf("%d",character);
+   //TODO : CHECK the error for the at_simple_error_ok.txt && test_file_simple_at_ok.txt
+   printf("\nstate: %d\n",state);
+   char str[2];
+    sprintf(str,"%c",character);
+    printf("\n%s\n",str);
+    if(character==CR){
+        printf("CR");
+    }else if(character==LF){
+        printf("LF");
+    }
     switch (state)
     {
         case 0 : {
             if(character==CR){
-                    result=2;//start the message
+                printf("%d",character);
                     state=1;
                 }
             else{
@@ -35,7 +53,17 @@ int32_t validator(uint8_t character){
                 else if(character!=LF){
                         state=12;
                     }
-            }else{
+            }
+            else if(isOKorERROR==1){
+                //end of message
+                if(character==LF){
+                        state=8;
+                    }
+                else if(character!=LF){
+                        state=12;
+                    }
+            }
+            else{
                 if(character==LF){
                         state=2;
                     }
@@ -57,7 +85,14 @@ int32_t validator(uint8_t character){
             break;
         }
         case 8: {
-            //end of message 
+        
+            if(checkIfError==0){
+                //correct answer
+                result = 0;
+            }else{
+                //wrong answer
+                result = 1;
+            }
             break;
         }
         case 9:{
@@ -72,6 +107,7 @@ int32_t validator(uint8_t character){
             break;
         }
         case 10:{
+            isOKorERROR=1;
             if(character==CR){
                 state=0;
             }else{
@@ -81,7 +117,7 @@ int32_t validator(uint8_t character){
         }
         case 12:{
             state = 8;
-            result = 1; //wrong message based on some syntax error
+            checkIfError=1;
             break;
         }
         case 13:{
