@@ -7,7 +7,7 @@ void printData(){
         char str[at_RESULT.currentLineLength[i]+1];
         printf("LINE %d: ",i);
           for(int j=0;j<at_RESULT.currentLineLength[i];j++){
-            int charsHex[MAX_STRING_LENGHT+1];
+            int charsHex[MAX_STRING_LENGTH+1];
             charsHex[j]=(int)at_RESULT.lines[i][j];
             sprintf(str,"%c",charsHex[j]);
             printf("%s",str);
