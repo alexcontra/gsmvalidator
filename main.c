@@ -9,7 +9,6 @@ void printData(){
     }else{
         realSizeOfArray=at_RESULT.line_counter;
     }
-    printf("%d\n",realSizeOfArray);
     for(int i=0;i<realSizeOfArray;i++){
         char str[at_RESULT.currentLineLength[i]+1];
         printf("LINE %d: ",i);
@@ -21,6 +20,30 @@ void printData(){
           }
           printf("\n");
         }
+}
+void resetValuesFromArrays(){
+    for(int i=0;i<MAX_STRING_COUNTER;i++){
+        at_RESULT.currentLineLength[i]=0;
+    }
+    for(int i=0;i<at_RESULT.line_counter;i++){
+        for(int j=0;j<MAX_STRING_LENGTH+1;j++){
+                    at_RESULT.lines[i][j]=0;
+        }
+    }
+}
+void processData(){
+    if (at_RESULT.ok == 0)
+    {
+        printf("\nMESSAGE OK!!\n");
+        printf("\nNUMBER OF LINES: %d\n",at_RESULT.line_counter);
+        printData();
+    }
+    else if (at_RESULT.ok == 1)
+    {
+        printf("SYNTAX ERROR!");
+    }
+    at_RESULT.line_counter=0; 
+    resetValuesFromArrays();
 }
 int main(int argc, char **argv)
 {
@@ -36,25 +59,23 @@ int main(int argc, char **argv)
     }
     int character;
     at_RESULT.line_counter=0;
+    at_RESULT.ok=2;
     while (feof(file)!=1)
     {
-        character = fgetc(file);
-        if(at_RESULT.ok!=1){
-            at_RESULT.ok = validator(character);
-        }else{
-            break;
-        }
+                character = fgetc(file);
+                if(at_RESULT.ok!=1){
+                at_RESULT.ok = validator(character);
+                if (at_RESULT.ok!=2)
+                {
+                processData();
+                at_RESULT.ok = validator(character);
+                }
+            }else{
+                break;
+            }
     }
-    if (at_RESULT.ok == 0)
-    {
-        printf("\nMESSAGE OK!!\n");
-        printf("\nNUMBER OF LINES: %d\n",at_RESULT.line_counter);
-        printData();
-    }
-    else if (at_RESULT.ok == 1)
-    {
-        printf("SYNTAX ERROR!");
-    }
+
+
     fclose(file);
     return 0;
 }

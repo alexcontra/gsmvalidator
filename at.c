@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include "at.h"
 uint32_t state = 0; // we will store this var in heap because we need everytime to know the last state
-int32_t result = 2; //sustain the state to be in process
 int checkIfError = 0;
 int isOKorERROR = 0; // checks if the next CRLF will end the message
 int is_message = 0;  //will check if there exists some messages like +something ,because we want to know how much CR LF we expect
+
 int32_t validator(uint8_t character)
 {
+    int32_t result = 2; //sustain the state to be in process
     //RULES:
     /*
         var result will contain everytime a value which will be returned in our main call
@@ -108,13 +109,16 @@ int32_t validator(uint8_t character)
             //wrong answer
             result = 1;
         }
+
+        state=0;
+        isOKorERROR=0;
+        checkIfError=0;        
         break;
     }
     case 9:
     {
         if (character != CR)
         {
-            
             if(at_RESULT.line_counter<MAX_STRING_COUNTER){
                 //add the content in at_RESULT - lines;
                 at_RESULT.lines[(int)at_RESULT.line_counter][(int)at_RESULT.currentLineLength[(int)at_RESULT.line_counter]] = character;
