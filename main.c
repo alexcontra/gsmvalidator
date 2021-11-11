@@ -67,7 +67,6 @@ int main(int argc, char **argv)
                 at_RESULT.ok = validator(character);
                 if (at_RESULT.ok!=2)
                 {
-                //printf("\nAFISARE DATE ------ SFARSIT DE MESAJ\n");
                 processData();
                 at_RESULT.ok = validator(character);
                 }
