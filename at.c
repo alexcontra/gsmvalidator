@@ -114,11 +114,14 @@ int32_t validator(uint8_t character)
     {
         if (character != CR)
         {
-            //add the content in at_RESULT - lines;
-            at_RESULT.lines[(int)at_RESULT.line_counter][(int)at_RESULT.currentLineLength[(int)at_RESULT.line_counter]] = character;
+            
+            if(at_RESULT.line_counter<MAX_STRING_COUNTER){
+                //add the content in at_RESULT - lines;
+                at_RESULT.lines[(int)at_RESULT.line_counter][(int)at_RESULT.currentLineLength[(int)at_RESULT.line_counter]] = character;
+                at_RESULT.currentLineLength[(int)at_RESULT.line_counter]++;
+            }
             is_message = 1;
             state = 9;
-            at_RESULT.currentLineLength[(int)at_RESULT.line_counter]++;
         }
         else if (character == CR)
         {
