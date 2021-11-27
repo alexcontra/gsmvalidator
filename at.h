@@ -2,7 +2,7 @@
 #define __AT_H
 
 #include<stdint.h>
-#define MAX_STRING_COUNTER 1000//it will contain a max of 1000 strings
+#define MAX_STRING_COUNTER 10//it will contain a max of 1000 strings
 #define MAX_STRING_LENGTH 128 // max length of the string will be 128
 #define CR 0x0D
 #define LF 0x0A
