@@ -6,6 +6,9 @@ int checkIfError = 0;
 int isOKorERROR = 0; // checks if the next CRLF will end the message
 int is_message = 0;  //will check if there exists some messages like +something ,because we want to know how much CR LF we expect
 int is_exception =0; //will mark the exception message
+int it_was_error= 0;
+int printed_syntax_error=0;
+int count_CR=0;
 void printData(){
     int realSizeOfArray=0;
     if(at_RESULT.line_counter>MAX_STRING_COUNTER){
@@ -48,6 +51,10 @@ void processData(){
     }
     at_RESULT.line_counter=0; 
     resetValuesFromArrays();
+}
+void writeData(uint8_t character){
+    at_RESULT.lines[(int)at_RESULT.line_counter][(int)at_RESULT.currentLineLength[(int)at_RESULT.line_counter]] = character;
+    at_RESULT.currentLineLength[(int)at_RESULT.line_counter]++;
 }
 
 int32_t validator(uint8_t character)
@@ -107,6 +114,15 @@ int32_t validator(uint8_t character)
                 state = 12;
             }
         }
+        else if(is_exception == 1){
+            if(character==LF){
+                is_exception=0;
+                state=0;
+            }
+            else if(character!=LF){
+                state = 12;
+            }
+        }
         else
         {
             if (character == LF)
@@ -134,10 +150,34 @@ int32_t validator(uint8_t character)
         {
             state = 9;
         }
+        else if(character==CR){
+            state=12;
+        }
         else
         {
-            state = 12;
+            writeData(character);
+            state = 3;
         }
+        break;
+    }
+    case 3:{
+          //printf("%x CHAR : \n" ,character);
+            if(character!=CR){
+                        is_exception = 1;
+                        if(at_RESULT.line_counter<MAX_STRING_COUNTER){
+                            //add the content in at_RESULT - lines;
+                            if(at_RESULT.currentLineLength[(int)at_RESULT.line_counter]<MAX_STRING_LENGTH+1){
+                                writeData(character);
+                            }
+                        }
+                        state=3;
+                    }
+            else if(character == CR){
+                at_RESULT.line_counter++;
+                state = 1;
+            }
+        
+        
         break;
     }
     case 8:
@@ -151,6 +191,7 @@ int32_t validator(uint8_t character)
         else
         {
             //wrong answer
+            it_was_error=1;
             result = 1;
         }
 
@@ -166,8 +207,7 @@ int32_t validator(uint8_t character)
             if(at_RESULT.line_counter<MAX_STRING_COUNTER){
                 //add the content in at_RESULT - lines;
                 if(at_RESULT.currentLineLength[(int)at_RESULT.line_counter]<MAX_STRING_LENGTH+1){
-                    at_RESULT.lines[(int)at_RESULT.line_counter][(int)at_RESULT.currentLineLength[(int)at_RESULT.line_counter]] = character;
-                    at_RESULT.currentLineLength[(int)at_RESULT.line_counter]++;
+                    writeData(character);
                 }
             }
             is_message = 1;
@@ -259,7 +299,12 @@ int32_t validator(uint8_t character)
     }
 
     if(at_RESULT.ok!=2){
-        processData();
+        if(printed_syntax_error==0){
+            processData();
+        }
+        if(it_was_error==1){
+            printed_syntax_error=1;
+        }
     }
     return result;
 }
