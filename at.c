@@ -5,6 +5,50 @@ uint32_t state = 0; // we will store this var in heap because we need everytime 
 int checkIfError = 0;
 int isOKorERROR = 0; // checks if the next CRLF will end the message
 int is_message = 0;  //will check if there exists some messages like +something ,because we want to know how much CR LF we expect
+int is_exception =0; //will mark the exception message
+void printData(){
+    int realSizeOfArray=0;
+    if(at_RESULT.line_counter>MAX_STRING_COUNTER){
+        realSizeOfArray=MAX_STRING_COUNTER;
+    }else{
+        realSizeOfArray=at_RESULT.line_counter;
+    }
+    for(int i=0;i<realSizeOfArray;i++){
+        char str[at_RESULT.currentLineLength[i]+1];
+        printf("LINE %d: ",i);
+          for(int j=0;j<at_RESULT.currentLineLength[i];j++){
+            int charsHex[MAX_STRING_LENGTH+1];
+            charsHex[j]=(int)at_RESULT.lines[i][j];
+            sprintf(str,"%c",charsHex[j]);
+            printf("%s",str);
+          }
+          printf("\n");
+        }
+}
+void resetValuesFromArrays(){
+    for(int i=0;i<MAX_STRING_COUNTER;i++){
+        at_RESULT.currentLineLength[i]=0;
+    }
+    for(int i=0;i<at_RESULT.line_counter;i++){
+        for(int j=0;j<MAX_STRING_LENGTH+1;j++){
+                    at_RESULT.lines[i][j]=0;
+        }
+    }
+}
+void processData(){
+    if (at_RESULT.ok == 0)
+    {
+        printf("\nMESSAGE OK!!\n");
+        printf("\nNUMBER OF LINES: %d\n",at_RESULT.line_counter);
+        printData();
+    }
+    else if (at_RESULT.ok == 1)
+    {
+        printf("SYNTAX ERROR!");
+    }
+    at_RESULT.line_counter=0; 
+    resetValuesFromArrays();
+}
 
 int32_t validator(uint8_t character)
 {
@@ -212,6 +256,10 @@ int32_t validator(uint8_t character)
         }
         break;
     }
+    }
+
+    if(at_RESULT.ok!=2){
+        processData();
     }
     return result;
 }
